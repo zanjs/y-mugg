@@ -31,6 +31,12 @@ func main() {
 		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
 	}))
 
+	// sum := 0
+	// for i := 0; i < 10; i++ {
+	// 	sum += i
+	// }
+	// fmt.Println(sum)
+
 	// var b = map[string]disk{
 	// 	"xvda": disk{"5656418", "22438120"},
 	// 	"xvdb": disk{"8493386", "1149266272"},
@@ -107,9 +113,12 @@ func main() {
 	v1.DELETE("/warerooms/:id", controllers.DeleteWareroom)
 
 	// qm 库存销量更新
-
-	v1.GET("/records", controllers.AllRecords)
+	v1.GET("/records", controllers.AllRecordsPage)
+	v1.GET("/records/all", controllers.AllRecords)
+	v1.GET("/records/q", controllers.GetRecordWhereTime)
+	v1.GET("/records/q2", controllers.AllProductWareroomRecordsTime)
 	v1.GET("/records/excel", controllers.AllProductWareroomRecords)
+	v1.PUT("/records/:id", controllers.UpdateRecord)
 	v1.DELETE("/records/:id", controllers.DeleteRecord)
 	// Server
 	if err := e.Start(fmt.Sprintf("%s:%s", appConfig.HttpAddr, appConfig.HttpPort)); err != nil {

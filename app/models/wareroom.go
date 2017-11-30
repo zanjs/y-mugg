@@ -7,13 +7,16 @@ import (
 )
 
 type (
+	// Wareroom is
 	Wareroom struct {
 		BaseModel
 		Title     string `json:"title" gorm:"type:varchar(100)"`
-		Numbering string `json:"numbering" gorm:"type:varchar(100)"`
+		Numbering string `json:"numbering" gorm:"type:varchar(100);not null;unique"`
+		Sort      int    `json:"sort"`
 	}
 )
 
+// CreateWareroom is
 func CreateWareroom(m *Wareroom) error {
 	var err error
 
@@ -28,12 +31,14 @@ func CreateWareroom(m *Wareroom) error {
 	return err
 }
 
+// UpdateWareroom is
 func (m *Wareroom) UpdateWareroom(data *Wareroom) error {
 	var err error
 
 	m.UpdatedAt = time.Now()
 	m.Title = data.Title
 	m.Numbering = data.Numbering
+	m.Sort = data.Sort
 
 	tx := gorm.MysqlConn().Begin()
 	if err = tx.Save(&m).Error; err != nil {
@@ -45,6 +50,7 @@ func (m *Wareroom) UpdateWareroom(data *Wareroom) error {
 	return err
 }
 
+// DeleteWareroom is
 func (m Wareroom) DeleteWareroom() error {
 	var err error
 	tx := gorm.MysqlConn().Begin()
@@ -57,6 +63,7 @@ func (m Wareroom) DeleteWareroom() error {
 	return err
 }
 
+// GetWareroomById is
 func GetWareroomById(id uint64) (Wareroom, error) {
 	var (
 		wareroom Wareroom
@@ -80,7 +87,7 @@ func GetWarerooms() ([]Wareroom, error) {
 	)
 
 	tx := gorm.MysqlConn().Begin()
-	if err = tx.Find(&warerooms).Error; err != nil {
+	if err = tx.Order("sort desc").Find(&warerooms).Error; err != nil {
 		tx.Rollback()
 		return warerooms, err
 	}

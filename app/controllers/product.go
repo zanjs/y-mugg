@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -35,13 +36,18 @@ func ShowProduct(c echo.Context) error {
 	return c.JSON(http.StatusOK, product)
 }
 
-//create product
+// CreateProduct is product
 func CreateProduct(c echo.Context) error {
 
 	product := new(models.Product)
 
 	product.Title = c.FormValue("title")
 	product.ExternalCode = c.FormValue("external_code")
+	sortV := c.FormValue("sort")
+	sort, _ := strconv.Atoi(sortV)
+	fmt.Println(sort)
+
+	product.Sort = sort
 
 	err := models.CreateProduct(product)
 
@@ -52,13 +58,18 @@ func CreateProduct(c echo.Context) error {
 	return c.JSON(http.StatusCreated, product)
 }
 
-//update product
+// UpdateProduct is update product
 func UpdateProduct(c echo.Context) error {
 	// Parse the content
 	product := new(models.Product)
 
 	product.Title = c.FormValue("title")
 	product.ExternalCode = c.FormValue("external_code")
+
+	sortV := c.FormValue("sort")
+	sort, _ := strconv.Atoi(sortV)
+
+	product.Sort = sort
 
 	// get the param id
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)

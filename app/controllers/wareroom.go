@@ -8,7 +8,7 @@ import (
 	"github.com/zanjs/y-mugg/app/models"
 )
 
-// get all warerooms
+// AllWarerooms is get all warerooms
 func AllWarerooms(c echo.Context) error {
 	var (
 		warerooms []models.Wareroom
@@ -21,7 +21,7 @@ func AllWarerooms(c echo.Context) error {
 	return c.JSON(http.StatusOK, warerooms)
 }
 
-// get one wareroom
+// ShowWareroom is get one wareroom
 func ShowWareroom(c echo.Context) error {
 	var (
 		wareroom models.Wareroom
@@ -50,13 +50,18 @@ func CreateWareroom(c echo.Context) error {
 	return c.JSON(http.StatusCreated, wareroom)
 }
 
-//update wareroom
+// UpdateWareroom is update wareroom
 func UpdateWareroom(c echo.Context) error {
 	// Parse the content
 	wareroom := new(models.Wareroom)
 
 	wareroom.Title = c.FormValue("title")
 	wareroom.Numbering = c.FormValue("numbering")
+
+	sortV := c.FormValue("sort")
+	sort, _ := strconv.Atoi(sortV)
+
+	wareroom.Sort = sort
 
 	// get the param id
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)

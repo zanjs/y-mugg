@@ -7,12 +7,14 @@ import (
 )
 
 type (
+	// Product is
 	Product struct {
 		BaseModel
 		Title        string `json:"title" gorm:"type:varchar(100)"`
-		ExternalCode string `json:"external_code" gorm:"varchar(100)"`
+		ExternalCode string `json:"external_code" gorm:"varchar(100);not null;unique"`
+		Sort         int    `json:"sort"`
 	}
-
+	// QMProduct is
 	QMProduct struct {
 		OwnerCode     string `json:"ownerCode"`
 		ItemCode      string `json:"itemCode"`
@@ -21,6 +23,7 @@ type (
 	}
 )
 
+// CreateProduct is
 func CreateProduct(m *Product) error {
 	var err error
 
@@ -35,12 +38,14 @@ func CreateProduct(m *Product) error {
 	return err
 }
 
+// UpdateProduct is
 func (m *Product) UpdateProduct(data *Product) error {
 	var err error
 
 	m.UpdatedAt = time.Now()
 	m.Title = data.Title
 	m.ExternalCode = data.ExternalCode
+	m.Sort = data.Sort
 
 	tx := gorm.MysqlConn().Begin()
 	if err = tx.Save(&m).Error; err != nil {
@@ -52,6 +57,7 @@ func (m *Product) UpdateProduct(data *Product) error {
 	return err
 }
 
+// DeleteProduct is
 func (m Product) DeleteProduct() error {
 	var err error
 	tx := gorm.MysqlConn().Begin()
@@ -64,6 +70,7 @@ func (m Product) DeleteProduct() error {
 	return err
 }
 
+// GetProductById is
 func GetProductById(id uint64) (Product, error) {
 	var (
 		product Product
@@ -80,6 +87,7 @@ func GetProductById(id uint64) (Product, error) {
 	return product, err
 }
 
+// GetProducts is
 func GetProducts() ([]Product, error) {
 	var (
 		products []Product
@@ -87,7 +95,7 @@ func GetProducts() ([]Product, error) {
 	)
 
 	tx := gorm.MysqlConn().Begin()
-	if err = tx.Order("id desc").Find(&products).Error; err != nil {
+	if err = tx.Order("sort desc").Find(&products).Error; err != nil {
 		tx.Rollback()
 		return products, err
 	}

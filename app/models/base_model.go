@@ -21,8 +21,10 @@ type PageModel struct {
 
 // QueryParams is
 type QueryParams struct {
-	Offset    int    `json:"offset"`
-	Limit     int    `json:"limit"`
-	StartTime string `json:"start_time"`
-	EndTime   string `json:"end_time"`
+	Offset     int    `json:"offset"`
+	Limit      int    `json:"limit"`
+	StartTime  string `json:"start_time"`
+	EndTime    string `json:"end_time"`
+	WareroomID int    `json:"wareroom_id"`
+	ProductID  int    `json:"product_id"`
 }

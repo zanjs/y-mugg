@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/xml"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/zanjs/y-mugg/db"
@@ -39,13 +40,15 @@ type (
 
 	// ProductExcelQuantity is
 	ProductExcelQuantity struct {
-		Quantity int `json:"quantity"`
-		Sales    int `json:"sales"`
+		Quantity  int       `json:"quantity"`
+		Sales     int       `json:"sales"`
+		CreatedAt time.Time `json:"create_at"`
 	}
 	// ProductWareroomExcel is
 	ProductWareroomExcel struct {
-		Warerooms []Wareroom     `json:"warerooms"`
-		Products  []ProductExcel `json:"products"`
+		Warerooms   []Wareroom     `json:"warerooms"`
+		Products    []ProductExcel `json:"products"`
+		ProductsAll []Product      `json:"products_all"`
 	}
 
 	// QMParameter is
@@ -103,6 +106,7 @@ func CreateRecord(m *Record) error {
 	return err
 }
 
+// GetRecordLast is
 func GetRecordLast(WareroomID, ProductID int) (Record, error) {
 	var (
 		record Record
@@ -110,7 +114,11 @@ func GetRecordLast(WareroomID, ProductID int) (Record, error) {
 	)
 
 	tx := gorm.MysqlConn().Begin()
-	if err = tx.Where("wareroom_id = ? AND product_id = ?", WareroomID, ProductID).Find(&record).Error; err != nil {
+	// if err = tx.Where("wareroom_id = ? AND product_id = ?", WareroomID, ProductID).Find(&record).Error; err != nil {
+	// 	tx.Rollback()
+	// 	return record, err
+	// }
+	if err = tx.Order("id desc").Where("wareroom_id = ? AND product_id = ?", WareroomID, ProductID).First(&record).Error; err != nil {
 		tx.Rollback()
 		return record, err
 	}
@@ -119,6 +127,132 @@ func GetRecordLast(WareroomID, ProductID int) (Record, error) {
 	return record, err
 }
 
+// GetRecordTimeLast is
+func GetRecordTimeLast(q QueryParams) (Record, error) {
+	var (
+		record Record
+		err    error
+	)
+
+	timeLayout := "2006-01-02 15:04:05"
+
+	if q.EndTime == "" {
+		q.EndTime = "2099-01-01 00:00:00"
+		fmt.Println("endTime 为空")
+	}
+
+	if q.StartTime == "" {
+
+		fmt.Println("StartTime 为空")
+		stime := time.Now().String()
+		timeArr := strings.Split(stime, "-")
+		year := timeArr[0]
+		month := timeArr[1]
+		fmt.Println(year, month)
+
+		q.StartTime = year + "-" + month + "-01 00:00:00"
+	}
+
+	startTime, _ := time.Parse(timeLayout, q.StartTime)
+	endTime, _ := time.Parse(timeLayout, q.EndTime)
+
+	tx := gorm.MysqlConn().Begin()
+	if err = tx.Order("id desc").Where("created_at BETWEEN ? AND ?", startTime, endTime).Where("wareroom_id = ? AND product_id = ?", q.WareroomID, q.ProductID).First(&record).Error; err != nil {
+		tx.Rollback()
+		return record, err
+	}
+	tx.Commit()
+
+	return record, err
+}
+
+// GetRecordWhereTime is
+func GetRecordWhereTime(q QueryParams) ([]Record, error) {
+	var (
+		record  Record
+		records []Record
+		err     error
+	)
+
+	timeLayout := "2006-01-02 15:04:05"
+
+	if q.EndTime == "" {
+		q.EndTime = "2099-01-01 00:00:00"
+		fmt.Println("endTime 为空")
+	}
+
+	if q.StartTime == "" {
+
+		fmt.Println("StartTime 为空")
+		stime := time.Now().String()
+		timeArr := strings.Split(stime, "-")
+		year := timeArr[0]
+		month := timeArr[1]
+		fmt.Println(year, month)
+
+		q.StartTime = year + "-" + month + "-01 00:00:00"
+	}
+
+	startTime, _ := time.Parse(timeLayout, q.StartTime)
+	endTime, _ := time.Parse(timeLayout, q.EndTime)
+
+	tx := gorm.MysqlConn().Begin()
+	if err = tx.Order("id desc").Where("created_at BETWEEN ? AND ?", startTime, endTime).Where("wareroom_id = ? AND product_id = ?", q.WareroomID, q.ProductID).Find(&records).Error; err != nil {
+		tx.Rollback()
+		return records, err
+	}
+	tx.Commit()
+
+	fmt.Println("record:", record)
+	fmt.Println("records:", records)
+
+	return records, err
+}
+
+func GetRecordWhereTimeCount(q QueryParams) ([]Record, error) {
+	var (
+		record  Record
+		records []Record
+		err     error
+	)
+
+	timeLayout := "2006-01-02 15:04:05"
+
+	if q.EndTime == "" {
+		q.EndTime = "2099-01-01 00:00:00"
+		fmt.Println("endTime 为空")
+	}
+
+	if q.StartTime == "" {
+
+		fmt.Println("StartTime 为空")
+		stime := time.Now().String()
+		timeArr := strings.Split(stime, "-")
+		year := timeArr[0]
+		month := timeArr[1]
+		fmt.Println(year, month)
+
+		q.StartTime = year + "-" + month + "-01 00:00:00"
+	}
+
+	startTime, _ := time.Parse(timeLayout, q.StartTime)
+	endTime, _ := time.Parse(timeLayout, q.EndTime)
+
+	tx := gorm.MysqlConn().Begin()
+	if err = tx.Where("created_at BETWEEN ? AND ?", startTime, endTime).Where("wareroom_id = ? AND product_id = ?", q.WareroomID, q.ProductID).Find(&records).Error; err != nil {
+		tx.Rollback()
+
+		fmt.Println("record:", record)
+		fmt.Println("records:", records)
+
+		return records, err
+	}
+	tx.Commit()
+
+	return records, err
+}
+
+// DeleteRecord is
 func (m Record) DeleteRecord() error {
 	var err error
 	tx := gorm.MysqlConn().Begin()
@@ -147,21 +281,22 @@ func GetRecordById(id uint64) (Record, error) {
 	return record, err
 }
 
-// func GetRecords() ([]Record, error) {
-// 	var (
-// 		records []Record
-// 		err     error
-// 	)
+// GetRecordsAll is
+func GetRecordsAll() ([]Record, error) {
+	var (
+		records []Record
+		err     error
+	)
 
-// 	tx := gorm.MysqlConn().Begin()
-// 	if err = tx.Order("id desc").Find(&records).Error; err != nil {
-// 		tx.Rollback()
-// 		return records, err
-// 	}
-// 	tx.Commit()
+	tx := gorm.MysqlConn().Begin()
+	if err = tx.Order("id desc").Find(&records).Error; err != nil {
+		tx.Rollback()
+		return records, err
+	}
+	tx.Commit()
 
-// 	return records, err
-// }
+	return records, err
+}
 
 // GetRecords is
 func GetRecords(p QueryParams) (RecordPage, error) {
@@ -210,4 +345,22 @@ func GetRecords(p QueryParams) (RecordPage, error) {
 	pageData.Data = records
 
 	return pageData, err
+}
+
+// UpdateRecord is
+func (m *Record) UpdateRecord(data *Record) error {
+	var err error
+
+	m.UpdatedAt = time.Now()
+	m.Sales = data.Sales
+	m.Quantity = data.Quantity
+
+	tx := gorm.MysqlConn().Begin()
+	if err = tx.Save(&m).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+
+	return err
 }
