@@ -67,6 +67,18 @@ func main() {
 	// 	s = append(s, val)
 	// }
 	// fmt.Println(s)
+	// now := time.Now()
+	// d, _ := time.ParseDuration("-360h")
+	// d1 := now.Add(d)
+	// fmt.Println(d1)
+
+	// stime := time.Now().String()
+	// timeArr := strings.Split(d1.String(), "-")
+	// year := timeArr[0]
+	// month := timeArr[1]
+	// day := timeArr[2]
+	// fmt.Println(timeArr)
+	// fmt.Println(year, month, day, stime)
 
 	// Routes
 	e.GET("/", controllers.GetHome)

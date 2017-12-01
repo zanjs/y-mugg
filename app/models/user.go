@@ -15,7 +15,7 @@ type (
 		Password string    `json:"-"`
 		Articles []Article `json:"articles"`
 	}
-
+	// UserLogin is
 	UserLogin struct {
 		Username string `json:"username" gorm:"type:varchar(100);unique"`
 		Password string `json:"password"`
@@ -29,6 +29,7 @@ func CreateTable() error {
 	return nil
 }
 
+// GetUsers is
 func GetUsers() ([]User, error) {
 	var (
 		users []User

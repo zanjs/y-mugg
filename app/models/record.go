@@ -144,7 +144,10 @@ func GetRecordTimeLast(q QueryParams) (Record, error) {
 	if q.StartTime == "" {
 
 		fmt.Println("StartTime 为空")
-		stime := time.Now().String()
+		now := time.Now()
+		d, _ := time.ParseDuration("-360h")
+		d15 := now.Add(d)
+		stime := d15.String()
 		timeArr := strings.Split(stime, "-")
 		year := timeArr[0]
 		month := timeArr[1]
@@ -184,11 +187,15 @@ func GetRecordWhereTime(q QueryParams) ([]Record, error) {
 	if q.StartTime == "" {
 
 		fmt.Println("StartTime 为空")
-		stime := time.Now().String()
+		now := time.Now()
+		d, _ := time.ParseDuration("-360h")
+		d15 := now.Add(d)
+		stime := d15.String()
 		timeArr := strings.Split(stime, "-")
 		year := timeArr[0]
 		month := timeArr[1]
-		fmt.Println(year, month)
+		fmt.Println("15天:", year, month)
+		fmt.Println(stime)
 
 		q.StartTime = year + "-" + month + "-01 00:00:00"
 	}
@@ -226,11 +233,14 @@ func GetRecordWhereTimeCount(q QueryParams) ([]Record, error) {
 	if q.StartTime == "" {
 
 		fmt.Println("StartTime 为空")
-		stime := time.Now().String()
+		now := time.Now()
+		d, _ := time.ParseDuration("-360h")
+		d15 := now.Add(d)
+		stime := d15.String()
 		timeArr := strings.Split(stime, "-")
 		year := timeArr[0]
 		month := timeArr[1]
-		fmt.Println(year, month)
+		fmt.Println(year, month, d15)
 
 		q.StartTime = year + "-" + month + "-01 00:00:00"
 	}

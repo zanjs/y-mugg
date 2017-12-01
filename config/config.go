@@ -31,6 +31,7 @@ var Config = struct {
 		Format     string
 		Version    string
 	}
+	Debug bool
 }{}
 
 func init() {
